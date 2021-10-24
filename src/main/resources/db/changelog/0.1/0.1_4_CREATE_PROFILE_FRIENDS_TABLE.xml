@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="version_0.1_4_CREATE_PROFILE_FRIENDS_TABLE.xml" author="aita">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="profile_friends"/></not>
+        </preConditions>
+
+        <sql>
+            create table profile_friends
+            (
+            profile_id bigint not null constraint fk_profile_profile_id references profile,
+            friends_id bigint not null constraint fk_profile_friends_id references profile,
+            constraint profile_friends_pkey primary key (profile_id, friends_id)
+            );
+        </sql>
+
+        <rollback>
+            <dropTable tableName="profile_friends"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="version_0.1_5_CREATE_PROFILE_FRIENDREQUESTS_TABLE.xml" author="aita">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="profile_friendrequests"/></not>
+        </preConditions>
+
+        <sql>
+            create table profile_friendrequests
+            (
+            profile_id bigint not null constraint fk_profile_profilereq_id references profile,
+            friends_id bigint not null constraint fk_profile_friendsreq_id references profile,
+            constraint profile_friendrequests_pkey primary key (profile_id, friends_id)
+            );
+        </sql>
+
+        <rollback>
+            <dropTable tableName="profile_friendrequests"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

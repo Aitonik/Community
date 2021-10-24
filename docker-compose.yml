@@ -1,0 +1,26 @@
+version: '3.7'
+services:
+  db:
+    image: postgres:11.4-alpine
+    container_name: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ./pg_data:/var/lib/postgresql/data/pgdata
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
+    restart: always
+
+  back:
+    image: aitonik/community_back
+    container_name: back
+    restart: always
+    ports:
+      - 8099:8099
+    environment:
+      DB_HOST: db
+    links:
+      - db
+

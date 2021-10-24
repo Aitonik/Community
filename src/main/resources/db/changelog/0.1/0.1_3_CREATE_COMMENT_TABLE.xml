@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="version_0.1_3_CREATE_COMMENT_TABLE.xml" author="aita">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="comment"/></not>
+        </preConditions>
+
+        <createTable tableName="comment">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="profile_id"  type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_comment_profile"
+                             references="profile(id)"/>
+            </column>
+            <column name="discussion_id"  type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_comment_discussion"
+                             references="discussion(id)"/>
+            </column>
+            <column name="text"  type="varchar(1000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creation_time" type="timestamp" />
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="comment"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

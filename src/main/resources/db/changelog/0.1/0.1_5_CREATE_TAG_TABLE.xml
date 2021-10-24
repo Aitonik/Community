@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd
+        http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <changeSet id="version_0.1_5_CREATE_TAG_TABLE.xml" author="aita">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="tag"/></not>
+        </preConditions>
+
+        <createTable tableName="tag">
+            <column name="id" type="bigint" autoIncrement="true">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="profile_id"  type="bigint">
+                <constraints nullable="false"
+                             foreignKeyName="fk_tag_profile"
+                             references="profile(id)"/>
+            </column>
+            <column name="name"  type="varchar(1000)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="tag"/>
+        </rollback>
+    </changeSet>
+
+    <changeSet id="version_0.1_5_1_CREATE_TAG_TABLE.xml" author="aita">
+        <preConditions onFail="MARK_RAN">
+            <not><tableExists tableName="tag_profiles"/></not>
+        </preConditions>
+
+        <sql>
+            create table tag_profiles
+            (
+            tag_id bigint not null constraint fk_tag_profile_id references tag,
+            profile_id bigint not null constraint fk_profile_tag_id references profile,
+            constraint tag_profile_pkey primary key (tag_id, profile_id)
+            );
+        </sql>
+
+        <rollback>
+            <dropTable tableName="tag_profiles"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>
