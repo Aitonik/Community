@@ -18,6 +18,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/profile")
@@ -41,8 +42,10 @@ public class ProfileController {
                 id = userPrincipal.getId();
             }
             Profile profile = profileService.findById(id);
+            ProfileDTO profileDTO = new ProfileDTO(profile);
+            profileDTO.setFriendRequestsFromMe(profileService.findFriendRequestsFromMe(userPrincipal.getId()));
 
-            return ApiCallResult.<ProfileDTO>builder().payload(new ProfileDTO(profile)).status(HttpStatus.OK).build();
+            return ApiCallResult.<ProfileDTO>builder().payload(profileDTO).status(HttpStatus.OK).build();
         } catch (Exception e) {
 
             logger.warn(e.getMessage());
@@ -130,11 +133,14 @@ public class ProfileController {
     public ApiCallResult friendRequest(
             @PathVariable("id") Long id,
             @CurrentUser UserPrincipal userPrincipal) {
-        logger.info("agreeFriend");
+        logger.info("friend_request");
         try {
-            profileService.friendRequest(userPrincipal.getId(), id);
+            List<ProfileShortDTO> profileShortDTOS = profileService.friendRequest(userPrincipal.getId(), id);
 
-            return ApiCallResult.builder().payload(Boolean.TRUE).status(HttpStatus.OK).build();
+            ProfileDTO profileDTO = new ProfileDTO(profileService.findById(userPrincipal.getId()));
+            profileDTO.setFriendRequestsFromMe(profileService.findFriendRequestsFromMe(userPrincipal.getId()));
+
+            return ApiCallResult.builder().payload(profileDTO).status(HttpStatus.OK).build();
         } catch (Exception e) {
 
             logger.warn(e.getMessage());
@@ -150,7 +156,10 @@ public class ProfileController {
         try {
             List<ProfileShortDTO> profileShortDTOS = profileService.agree(userPrincipal.getId(), id);
 
-            return ApiCallResult.builder().payload(profileShortDTOS).status(HttpStatus.OK).build();
+            ProfileDTO profileDTO = new ProfileDTO(profileService.findById(userPrincipal.getId()));
+            profileDTO.setFriendRequestsFromMe(profileService.findFriendRequestsFromMe(userPrincipal.getId()));
+
+            return ApiCallResult.builder().payload(profileDTO).status(HttpStatus.OK).build();
         } catch (Exception e) {
 
             logger.warn(e.getMessage());
@@ -167,7 +176,10 @@ public class ProfileController {
 
             List<ProfileShortDTO> profileShortDTOS = profileService.disAgree(userPrincipal.getId(), id);
 
-            return ApiCallResult.builder().payload(profileShortDTOS).status(HttpStatus.OK).build();
+            ProfileDTO profileDTO = new ProfileDTO(profileService.findById(userPrincipal.getId()));
+            profileDTO.setFriendRequestsFromMe(profileService.findFriendRequestsFromMe(userPrincipal.getId()));
+
+            return ApiCallResult.builder().payload(profileDTO).status(HttpStatus.OK).build();
         } catch (Exception e) {
 
             logger.warn(e.getMessage());
@@ -176,12 +188,12 @@ public class ProfileController {
     }
 
     @PostMapping(value = "/search")
-    public ApiCallResult search(@RequestParam(name = "name") String name,
+    public ApiCallResult search(@RequestParam(name = "email") String email,
                                 @CurrentUser UserPrincipal userPrincipal) {
         logger.info("search");
         try {
 
-            List<ProfileShortDTO> profileShortDTOS = profileService.search(name);
+            List<ProfileShortDTO> profileShortDTOS = profileService.search(email);
 
             return ApiCallResult.builder().payload(profileShortDTOS).status(HttpStatus.OK).build();
         } catch (Exception e) {

@@ -73,4 +73,24 @@ public class Profile {
 
     @Column(name = "creation_time")
     private LocalDate creationTime;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Profile profile = (Profile) o;
+
+        if (id != null ? !id.equals(profile.id) : profile.id != null) return false;
+        if (login != null ? !login.equals(profile.login) : profile.login != null) return false;
+        return email != null ? email.equals(profile.email) : profile.email == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (login != null ? login.hashCode() : 0);
+        result = 31 * result + (email != null ? email.hashCode() : 0);
+        return result;
+    }
 }

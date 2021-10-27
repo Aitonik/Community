@@ -3,17 +3,16 @@ package com.community.community.service;
 import com.community.community.dao.DiscussionRepository;
 import com.community.community.dto.DiscussionDTO;
 import com.community.community.dto.Period;
+import com.community.community.dto.Short;
 import com.community.community.entities.Discussion;
 import com.community.community.entities.Profile;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,10 +33,23 @@ public class DiscussionService {
         List<Discussion> discussionsFr = discussionRepository.getNewsFriends(profileId);
         List<Discussion> discussionsFrFr = discussionRepository.getNewsFriendsFriends(profileId);
 
+        List<Pair<Profile, Profile>> fr = profileService.getFr(profileId);
+        List<Pair<Profile, Profile>> frfr = profileService.getFrFr(profileId);
+
         Set<Discussion> discussionSet = new HashSet<>(discussions);
         discussionSet.addAll(discussionsFr);
         discussionSet.addAll(discussionsFrFr);
-        return discussionSet.stream().sorted(Comparator.comparing(Discussion::getCreationTime)).map(DiscussionDTO::new).collect(Collectors.toList());
+        return discussionSet.stream().sorted(Comparator.comparing(Discussion::getCreationTime))
+                .map(DiscussionDTO::new).peek(d -> {
+                    if (d.getId().equals(profileId)) {
+                        return;
+                    }
+                    fr.stream().filter(pair -> pair.getLeft().getId().equals(d.getProfileShort().getId()))
+                            .forEach(optFr -> d.getProfileShort().getFrs().add(new Short(optFr.getRight().getId(), optFr.getRight().getLogin())));
+                    frfr.stream().filter(pair -> pair.getLeft().getId().equals(d.getProfileShort().getId()))
+                            .forEach(optFr -> d.getProfileShort().getFrs().add(new Short(optFr.getRight().getId(), optFr.getRight().getLogin())));
+
+                }).collect(Collectors.toList());
     }
 
     public DiscussionDTO findById(Long id) {

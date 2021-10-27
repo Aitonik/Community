@@ -3,6 +3,7 @@ package com.community.community.service;
 import com.community.community.dao.ProfileRepository;
 import com.community.community.dto.ProfileShortDTO;
 import com.community.community.entities.Profile;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,16 +21,13 @@ public class ProfileService {
     @Autowired
     private DiscussionService discussionService;
 
-    public Set<Profile> getFrFr(Long id) {
-        //друзья
-        List<Profile> fr = profileRepository.findFriendsById(id);
+    public List<Pair<Profile, Profile>> getFr(Long id) {
+        return profileRepository.findFr(id);
+    }
 
-        //друзья друзей
-        List<Profile> frfr = profileRepository.findFriendsByIds(fr.stream().map(Profile::getId).collect(Collectors.toList()));
-        HashSet<Profile> frfrs = new HashSet<>(fr);
-        frfrs.addAll(frfr);
+    public List<Pair<Profile, Profile>> getFrFr(Long id) {
 
-        return frfrs;
+        return profileRepository.findFrFr(id);
     }
 
     public Profile findById(Long id) {
@@ -45,12 +43,20 @@ public class ProfileService {
         return profileRepository.save(profile);
     }
 
-    public void friendRequest(Long profileId, Long friendId) {
+    public List<ProfileShortDTO> findFriendRequestsFromMe(Long profileId) {
+        return profileRepository.findRequestsFromMe(profileId).stream().map(ProfileShortDTO::new).collect(Collectors.toList());
+    }
+
+    public List<ProfileShortDTO> friendRequest(Long profileId, Long friendId) {
 
         Profile profile = findById(profileId);
         Profile friend = findById(friendId);
 
         friend.getFriendRequests().add(profile);
+        friend = profileRepository.saveAndFlush(friend);
+
+        return profileRepository.findRequestsFromMe(profileId).stream().map(ProfileShortDTO::new).collect(Collectors.toList());
+
     }
 
     public List<ProfileShortDTO> agree(Long profileId, Long friendId) {
@@ -79,7 +85,7 @@ public class ProfileService {
 
     public List<ProfileShortDTO> search(String name) {
 
-        return profileRepository.findByEmailLikeOrLoginLike(name, name).stream().map(ProfileShortDTO::new).collect(Collectors.toList());
+        return profileRepository.findByEmailLike(name).stream().map(ProfileShortDTO::new).collect(Collectors.toList());
     }
 
     public Profile create(String email, String code, Profile friend) {
@@ -90,7 +96,8 @@ public class ProfileService {
         profile.setFriends(new HashSet<>(Collections.singletonList(friend)));
         profile.setPassword(code);
 
-        profile = profileRepository.save(profile);
+        profile = profileRepository.saveAndFlush(profile);
+        friend.getFriends().add(profile);
 
         return profile;
     }

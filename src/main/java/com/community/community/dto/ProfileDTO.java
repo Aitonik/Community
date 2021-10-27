@@ -29,7 +29,8 @@ public class ProfileDTO implements Serializable {
 
     private List<ProfileShortDTO> friends = new ArrayList<>();
 
-    private List<ProfileShortDTO> friendRequests = new ArrayList<>();
+    private List<ProfileShortDTO> friendRequestsToMe = new ArrayList<>();
+    private List<ProfileShortDTO> friendRequestsFromMe = new ArrayList<>();
 
     private String profession;
 
@@ -56,7 +57,7 @@ public class ProfileDTO implements Serializable {
         this.socialLink = profile.getSocialLink();
         this.photoPath = profile.getPhotoPath();
         this.friends = profile.getFriends().stream().map(ProfileShortDTO::new).collect(Collectors.toList());
-        this.friendRequests = profile.getFriendRequests().stream().map(ProfileShortDTO::new).collect(Collectors.toList());
+        this.friendRequestsToMe = profile.getFriendRequests().stream().map(ProfileShortDTO::new).collect(Collectors.toList());
         this.profession = profile.getProfession();
         this.zodiac = profile.getZodiac();
         this.food = profile.getFood();

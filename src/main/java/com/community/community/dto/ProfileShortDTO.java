@@ -7,6 +7,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Builder
@@ -18,6 +20,7 @@ public class ProfileShortDTO implements Serializable {
     private String login;
     private String photoPath;
     private String profession;
+    private List<Short> frs = new ArrayList<>();
 
     public ProfileShortDTO(Profile profile) {
         this.id = profile.getId();
